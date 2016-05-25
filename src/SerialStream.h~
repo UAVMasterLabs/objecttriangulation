@@ -1,0 +1,102 @@
+/** Time-stamp: <04/05/05 15:25:22 pagey>
+* $Id: SerialStream.h,v 1.10 2005/10/01 21:24:21 crayzeewulf Exp $*/
+#ifndef _SerialStream_h_
+#define _SerialStream_h_
+#include <string>
+#include <fstream>
+#include <cassert>
+#include "SerialStreamBuf.h"
+ 
+extern "C++" {
+namespace LibSerial {
+class SerialStream : public std::iostream {
+public:
+explicit SerialStream( const std::string filename, 
+std::ios_base::openmode mode =
+std::ios::in|std::ios::out) ;
+explicit SerialStream() ;
+virtual ~SerialStream() ; 
+void Open(const std::string filename, 
+std::ios_base::openmode mode = 
+std::ios_base::in | std::ios_base::out) ;
+ const SerialStreamBuf::CharSizeEnum CharSize() ;
+void Close() ;
+const bool IsOpen() const ;
+/** Set the baud rate for serial communications. 
+*/
+void SetBaudRate(SerialStreamBuf::BaudRateEnum baud_rate) ;
+ 
+const SerialStreamBuf::BaudRateEnum BaudRate() ;
+/** Set the character size associated with the serial port. 
+ 
+@param size The character size will be set to this value. 
+*/
+void SetCharSize(const SerialStreamBuf::CharSizeEnum size) ;
+/** Get the character size being used for serial communication. 
+ 
+@return The current character size. 
+*/
+
+void SetNumOfStopBits(short stop_bits) ;
+const short NumOfStopBits() ; 
+void SetParity(const SerialStreamBuf::ParityEnum parity) ;
+const SerialStreamBuf::ParityEnum Parity() ;
+void 
+SetFlowControl(const SerialStreamBuf::FlowControlEnum flow_c) ;
+const SerialStreamBuf::FlowControlEnum FlowControl() ;
+const short SetVMin( short vtime ) ;
+const short VMin() ;
+const short SetVTime( short vtime ) ;
+const short VTime() ;
+protected:
+ 
+private:
+SerialStreamBuf *mIOBuffer ;
+ 
+inline
+SerialStream() : 
+std::iostream(0), mIOBuffer(0) {
+//
+// Close the stream
+//
+Close() ;
+}
+inline
+SerialStream::~SerialStream() {
+// 
+// If a SerialStreamBuf is associated with this SerialStream
+// then we need to destroy it here.
+//
+if( mIOBuffer ) {
+	delete mIOBuffer ;
+}
+}
+inline
+void 
+SerialStream::Close() {
+//
+// If a SerialStreamBuf is associated with the SerialStream then
+// destroy it.
+//
+if( mIOBuffer ) {
+	delete mIOBuffer ;
+	mIOBuffer = 0 ;
+}
+}
+inline
+const bool
+SerialStream::IsOpen() const {
+//
+// Checks to see if mIOBuffer is a null buffer, if not,
+// calls the is_open() function on this streams SerialStreamBuf,
+// mIOBuffer
+//
+if ( ! mIOBuffer ) {
+	return false ;
+}
+return mIOBuffer->is_open() ;
+}
+ 
+} ; // namespace LibSerial
+} // extern "C++"
+#endif // #ifndef _SerialStream_h_
